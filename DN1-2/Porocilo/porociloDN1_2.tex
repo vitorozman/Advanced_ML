@@ -1,0 +1,127 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[slovene]{babel}
+
+\usepackage{hyperref}
+\usepackage{listings} % za naslovnico
+\usepackage{amsthm}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+
+
+%\graphicspath{ {./Slike/} }
+\usepackage{subcaption} % za side-by-side slike
+\usepackage[
+top    = 2.cm,
+bottom = 2.cm,
+left   = 2.cm,
+right  = 2.cm]{geometry}
+
+\usepackage{footnote}
+\makesavenoteenv{tabular}
+\title{Domača naloga - 2.del \\
+\large Meta učenje}
+
+\begin{document}
+    
+\author{Vito Rozman}
+\date{\today}
+\maketitle
+
+
+
+\section{Izbira podatkovij}
+
+Pri iskanju najboljšega modela sem najprej pridobil vsa podatkovja iz 
+\href{https://www.openml.org/}{OpenML}, za katera obstajajo naloge 
+(ang. tasks) za nadzarovano kasifikacijo. Izbral sem podatkovja s število 
+primerov med $500-3000$ in s $20-150$ značilk, ker drugače obdržim premalo podatkovij. 
+Potem sem odstarnil tista, ki
+niso primerna za iskanje podobnosti. Torej da gre za kasifikacijo, vsebujejo samo eno
+napovedno spremenljivko, značilke so numeričnega tipa in podatkovja se ne ponavljajo.
+Od vseh podatkovij, ki sem jih pridobil sem obdržal $50$ podatkovij.
+
+
+\section{Meta prostor}
+
+Izbrana podatkovja sem opisal z meta značilkami štirih tipov. To so \emph{splošnega},
+\emph{stetističnega}, \emph{info-teoreticnega} in \emph{modelskega} 
+(ang. general, statistical, info-theory and model-based). Pri tem sem naletel
+na težavo z nedefiniranimi vrednostmi \emph{nan}, kar sem rešil z metodo imputacij. 
+Nedefinirane vrednosti sem napolnil s povprečno vrednostjo.
+
+\subsection{Izbira podobnih podatkovij in njihovih modelov}
+
+Za izbiro podobnih podatkovij sem izbral pristop z iskanje k najbližjih sosedov za $k=3$.
+Tako sem dobil tri podatkovja PieChart2, cardiotocography in  wdbc. Za vsakega od njih
+sem pridobil njegove ocene (ang. evaluations) in posledično model z najboljšim izidom metrike AUC. 
+Ker je za vsako podatkovje več taskov sem tako dobil več kot tri modele. 
+Ker so nekatere  modeli implementacije iz drugih programskih jezikov, sem 
+za nekatere uporablil \emph{sklearn} verzijo ali pa pa jih izločil.
+Njaboljši modeli so \textbf{Gaussian Naive Bayes}, \textbf{Decision Tree},
+\textbf{Adaptive Boosting}(\emph{base-estimator=DecisionTreeClassifier}) in \textbf{XGBoost}.
+
+\section{Zmogljivost modelov}
+
+Najprej sem razdelil podatke na učne in testne, na učnih sem model učil na testnih pa preveril
+njegovo zmogljivost z metriko AUC (ploščina pod ROC krivuljo).
+Opisan potopek sem najprej izvedel na neskaliranih podatkih, potem pa še 
+na skaliranih ter primerjal rezultate. Iskazalo se je, da so 
+skalirani podatki bolje obnesli, vendar pri izbiri najboljšega modela 
+niso privedli do večjih razlik.
+
+
+\begin{center}
+    \begin{tabular}{||c| c c||} 
+        \hline
+        Modeli & AUC - cross validation &  AUC test set \\ [0.5ex] 
+        \hline\hline
+        Gaussian Naive Bayes & 0.848005  & 0.740600 \\
+        \hline
+        Decision Tree & 0.753321  & 0.739688\\
+        \hline
+        Adaptive Boosting & 0.798328 & 0.715982\\
+        \hline
+        XGBoost & 0.926251 & 0.813512 \\
+        \hline
+    \end{tabular}
+\end{center}
+Hiperparametre modelov ki sem jih dobil nisem optimiziral, morda bi bilo smiselno izvesti 
+še ta kotak za odločitev najboljšega modela iz meta učenja.
+Kot končni model sem izbral model z najboljšim izidom AUC na testni podatakih, to je bil
+\textbf{XGBoost} z AUC na testni množici $0.813512$.
+
+\section{Zaključek}
+
+\begin{center}
+    \begin{tabular}{||c| c c||} 
+        \hline
+         & AUC - cross validation &  AUC test set \\ [0.5ex] 
+        \hline\hline
+        Random Forest - ročno & 0.928039  & 0.887989 \\
+        \hline
+        Random Forest - avtomatizirano & 0.928101 & 0.847335\\
+        \hline
+        XGBoost - meta učenje & 0.926251 & 0.813512 \\
+        \hline
+    \end{tabular}
+\end{center}
+
+Pristop z meta učenjem je bil dokaj učinkovit, saj je zmogljivost izbranega modela 
+primerljiva ročnemu iskanju in avtomatiziranem iskanju. Ob ponovnem iskanju najboljšega
+modela, bi najprej uporabil meta učenje tako bi dobil okvirno modele, ki so primerni za moje 
+podatke, nato bi za nekaj izbranih kandidatov izvedel avtomatizirano izbiro hiperparametrov.
+Po dani konfiguraciji bi še ročno preveril okolico nastavitve parametrov.
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
