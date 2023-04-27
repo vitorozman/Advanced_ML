@@ -8,6 +8,9 @@ __pycache__/
 *.txt
 *.s
 
+*.pickle
+testne_povezave.csv
+
 #Latex
 *.aux
 *.fdb_latexmk
