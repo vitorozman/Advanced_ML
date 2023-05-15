@@ -3,7 +3,9 @@ import re
 import networkx as nx
 import pickle
 from def_drevesa import Definicija, Vozlisce
+import os
 
+ta_dir = os.path.dirname(os.path.abspath(__file__))
 
 def nalozi_podatke():
     """
@@ -27,7 +29,7 @@ def nalozi_podatke():
 
 def nalozi_graf(graf_dato):
     graf = nx.MultiDiGraph()
-    with open(graf_dato, encoding="utf-8") as f:
+    with open(os.path.join(ta_dir,graf_dato), encoding="utf-8") as f:
         for vrsta in f:
             deli = vrsta.split(";")[1:]
             deli = [eval(d) for d in deli]
@@ -41,13 +43,13 @@ def nalozi_graf(graf_dato):
 
 
 def nalozi_def(def_dato):
-    with open(def_dato, "rb") as f:
+    with open(os.path.join(ta_dir,def_dato), "rb") as f:
         return pickle.load(f)
 
 
 def nalozi_povezave(povezave_dato):
     povezave = []
-    with open(povezave_dato, encoding="utf-8") as f:
+    with open(os.path.join(ta_dir,povezave_dato), encoding="utf-8") as f:
         f.readline()  # glava
         for vrsta in f:
             od, do, tip, prisotnost = [
@@ -62,7 +64,7 @@ def nalozi_vektorje_besed():
     Vrne slovar {beseda: vektor, ...}
     """
     vektorji = {}
-    with open("besedisce.txt", encoding="utf-8") as f:
+    with open(os.path.join(ta_dir, "besedisce.txt"), encoding="utf-8") as f:
         n_vektorji, dim = map(int, f.readline().split(" "))
         for vrsta in f:
             kosi = vrsta.split(" ")
