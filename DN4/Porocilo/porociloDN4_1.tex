@@ -1,0 +1,117 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[slovene]{babel}
+
+\usepackage{hyperref}
+\usepackage{listings} % za naslovnico
+\usepackage{amsthm}
+\usepackage{amsmath, amssymb, amsfonts}
+\usepackage{graphicx}
+
+
+%\graphicspath{ {./Slike/} }
+\usepackage{subcaption} % za side-by-side slike
+\usepackage{caption}
+\usepackage[
+top    = 2.cm,
+bottom = 2.cm,
+left   = 2.cm,
+right  = 2.cm]{geometry}
+
+\usepackage{footnote}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan
+    }
+
+\makesavenoteenv{tabular}
+\title{Domača naloga - 1.del \\
+\large Odkrivanje enačb in uporaba predznanja}
+
+\begin{document}
+    
+\author{Vito Rozman}
+\date{\today}
+\maketitle
+
+
+
+\section{Soočanje s problemom}
+
+Pri izbiri orodaj sem najprej preizkusil linearno regresijo, lasso regresijo, 
+rige regresija in nazadnje še modele za iskane enačbe s pomočjo 
+\href{https://github.com/MilesCranmer/PySR}{PySR} orodij.
+Pri evaluaciji rezultata sem upošteval dve stavri, napako MSE in kopleksnost
+enačbe, ki sem jo ocenil z metodo "ostrega pogleda". Pri regresijah sem preizkusil
+različne parametre (meja in lambda parameter) in različno generirane spremenljivke. 
+Prav tako sem sprobal različne stopnje polinomov.
+Postopek iskanaj enačbe sem izvedel v naslednji korakih.
+\begin{itemize}
+    \item Prvo sem zagnam različne tipe regresij, ki smo 
+    jih obravnavali na vajah, brez da bi kakorkoli spremijal spremenljivke.
+    Ta pristop se je bil obupen, saj je bila napaka zelo velika.
+    \item Druga modifikacija je bila, da sem ustvaril nove spremenljivke 
+    gelde na podano predznanje. Generiral sem:
+    $T_w - T_a$, $\sqrt{T_w - T_a}$, $\sin(\theta)$,  $\cos(\theta)$, 
+    $\frac{1}{\eta}$ in $-\eta$.
+    Potem sem ponpvil postopek kot pri 
+    prejšni točki in dobil bolše rezultate. Najboljša napaka je znašala $0.029\%$,
+    vendar je kopleksnost ostala enako salba.
+    \item Tretji pristop je bil z drugimi metodami kot sta algoritem \texttt{BACON} 
+    in metoda iz knjižnice \texttt{PySR}. \texttt{BACON} se ni izkazal dobro, \texttt{PySR}
+    pa presenetljivo dobro, saj sem dobil nizko napako in dokaj preprosto enačbo.
+\end{itemize}
+
+
+\section{Model za iskanje enačbe}
+Kot že omenjeno sem upirabil orodje \texttt{PySR} in sicer funkcijo 
+\texttt{PySRRegressor}.
+
+\begin{center}
+    \captionof{table}{Nastavitev orodja}
+    %\caption{Nastavitve orodja}
+    \begin{tabular}{c|c}
+        \hline
+        Binanrne operacije & $+, -, *, /$ \\
+        Druge operacije & $\cos(\cdot),
+        \sin(\cdot),
+        inv(\cdot),
+        \cdot^2 ,
+        \sqrt{\cdot} ,
+        \cdot^3 ,
+        \cos^2(\cdot),
+        \sin^2(\cdot)$\\
+        Parameter kompleksnosti & $20$ \\
+        Največja globina gnezdenja & $10$ \\
+        Napaka & MSE \\
+        \hline
+    \end{tabular}
+\end{center}
+
+\section{Rezultat}
+
+Izbranana enačba je oblike:
+$$
+\sin(\theta)\cdot \left(\frac{3}{2} - \eta\right) \cdot \sqrt{\frac{4(T_w - T_a)}{69}}.
+$$
+Z dano enačbo sem dobil napako $0.0133\%$, kopleksnot modela pa $13$. Dobljeni enačbi bi zaupal
+v približno $95\%$ primerih, saj so dobljene konstante rezultat prileganje vhodnim podatkom. Ostale 
+komponente se mi zdijo dokaj vredu, ker ustrezajo predpostavkam domenskega predznaja.
+%13,0.013328496,"(square((Tw - Ta) / 17.75263) * (sin(theta) * (1.5037042 - eta)))"
+
+
+\section*{Opis datotek}
+\begin{itemize}
+    \item \textbf{preproces.py} spripta kjer generiram nove spremenljivke,
+    \item \textbf{eq\_regression.py} spripta s funkcijami regresije in algoritma BACON,
+    \item \textbf{NAL1.ipynb} zvezek iskanja enačbe.
+\end{itemize}
+
+
+
+
+
+\end{document}
